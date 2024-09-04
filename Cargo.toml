@@ -6,7 +6,7 @@ authors = ["MostlyFinished <git@praeclus.io>"]
 description = "A rust implementation of windmouse"
 readme = "readme.md"
 repository = "https://github.com/MostlyFinished/windmouse-rs"
-license-file = "MIT"
+license = "MIT"
 categories = ["algorithms"]
 
 [dependencies]
