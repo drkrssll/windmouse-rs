@@ -1,1 +1,6 @@
 /target
+.idea/.gitignore
+.idea/modules.xml
+.idea/vcs.xml
+.idea/windmouse-rs.iml
+.idea/workspace.xml

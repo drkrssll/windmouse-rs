@@ -2,7 +2,16 @@
 name = "windmouse-rs"
 version = "0.1.0"
 edition = "2021"
+authors = ["MostlyFinished <git@praeclus.io>"]
+description = "A rust implementation of windmouse"
+readme = "readme.md"
+repository = "https://github.com/MostlyFinished/windmouse-rs"
+license-file = "license.md"
+categories = ["algorithms"]
 
 [dependencies]
 rand = "0.9.0-alpha.2"
 thiserror = "1.0.63"
+
+[badges]
+maintenance = { status = "actively-developed" }
