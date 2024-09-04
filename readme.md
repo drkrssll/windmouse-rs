@@ -1,6 +1,7 @@
 # WindMouse
 
 WindMouse is a Rust implementation of the WindMouse algorithm, designed to generate realistic mouse movement paths. This library simulates mouse movements with consideration for gravity, wind, and randomness to create more human-like cursor trajectories.
+
 See https://ben.land/post/2021/04/25/windmouse-human-mouse-movement/ for more details on the original algorithm
 
 ## Features
