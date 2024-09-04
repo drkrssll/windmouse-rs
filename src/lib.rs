@@ -4,6 +4,26 @@
 //! realistic mouse movement paths. The algorithm simulates mouse movements
 //! with consideration for gravity, wind, and randomness to create more
 //! human-like cursor trajectories.
+//!
+//! # Dependencies
+//!
+//! - rand = "0.9.0-alpha.2"
+//!   We're using the updated syntax for future compatibility with Rust 2024.
+//!   Unfortunately this requires the 0.9.0 Alpha.
+//!
+//! - thiserror = "1.0.63"
+//!   For custom error handling.
+//!
+//! # Example
+//!
+//! ```
+//! use windmouse::{WindMouse, Coordinate};
+//!
+//! let wind_mouse = WindMouse::new_default();
+//! let start = Coordinate::new(0.0, 0.0);
+//! let end = Coordinate::new(100.0, 100.0);
+//! let points = wind_mouse.generate_points(start, end);
+//! ```
 
 use rand::prelude::*;
 use thiserror::Error;
