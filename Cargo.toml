@@ -1,12 +1,12 @@
 [package]
 name = "windmouse-rs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["MostlyFinished <git@praeclus.io>"]
 description = "A rust implementation of windmouse"
 readme = "readme.md"
 repository = "https://github.com/MostlyFinished/windmouse-rs"
-license-file = "license.md"
+license-file = "MIT"
 categories = ["algorithms"]
 
 [dependencies]
