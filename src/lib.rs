@@ -6,17 +6,30 @@
 //! human-like cursor trajectories.
 
 use rand::prelude::*;
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum WindMouseError {
+    #[error("Invalid wait time: min_wait ({min_wait}) must be less than or equal to max_wait ({max_wait})")]
+    InvalidWaitTime { min_wait: f32, max_wait: f32 },
+    #[error("Invalid parameter: {0} must be non-negative")]
+    NegativeParameter(&'static str),
+}
 
 /// Represents a 2D coordinate with floating-point precision
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Coordinate {
-    x: f32,
-    y: f32,
+    pub x: f32,
+    pub y: f32,
 }
 
 impl Coordinate {
+    pub fn new(x: f32, y: f32) -> Self {
+        Self { x, y }
+    }
+
     /// Converts the floating-point coordinate to integer values
-    fn as_i32(&self) -> [i32; 2] {
+    pub fn as_i32(&self) -> [i32; 2] {
         [self.x.round() as i32, self.y.round() as i32]
     }
 }
@@ -51,6 +64,7 @@ impl Coordinate {
 ///
 /// * `random_speed`: An additional randomness factor for mouse speed.
 ///   This helps create more natural, variable-speed movements.
+#[derive(Debug)]
 pub struct WindMouse {
     pub gravity: f32,
     pub wind: f32,
@@ -64,11 +78,22 @@ pub struct WindMouse {
 
 impl WindMouse {
     /// Creates a new WindMouse instance with the specified parameters
-    pub fn new(mouse_speed: f32, gravity: f32, wind: f32, min_wait: f32, max_wait: f32, max_step: f32, target_area: f32) -> Self {
+    pub fn new(mouse_speed: f32, gravity: f32, wind: f32, min_wait: f32, max_wait: f32, max_step: f32, target_area: f32) -> Result<Self, WindMouseError> {
+        if min_wait > max_wait {
+            return Err(WindMouseError::InvalidWaitTime { min_wait, max_wait });
+        }
+
+        for &(value, name) in &[(mouse_speed, "mouse_speed"), (gravity, "gravity"), (wind, "wind"),
+            (min_wait, "min_wait"), (max_wait, "max_wait"), (max_step, "max_step"), (target_area, "target_area")] {
+            if value < 0.0 {
+                return Err(WindMouseError::NegativeParameter(name));
+            }
+        }
+
         let random_seed = random::<f32>() * 10.0;
         let random_speed = (random_seed / 2.0 + mouse_speed / 10.0).max(0.1);
 
-        WindMouse {
+        Ok(WindMouse {
             gravity,
             wind,
             min_wait,
@@ -77,7 +102,7 @@ impl WindMouse {
             target_area,
             mouse_speed,
             random_speed,
-        }
+        })
     }
 
     /// Creates a new WindMouse instance with default values for all parameters except target_area
@@ -99,7 +124,7 @@ impl WindMouse {
     /// * `max_step`: 10.0
     /// * `target_area`: 100.0
     pub fn new_default() -> Self {
-        Self::new(10.0, 9.0, 3.0, 2.0, 10.0, 10.0, 100.0)
+        Self::new(10.0, 9.0, 3.0, 2.0, 10.0, 10.0, 100.0).expect("Default values should always be valid")
     }
 
     /// Generates a series of points representing the mouse movement path
@@ -183,5 +208,41 @@ impl WindMouse {
     /// Calculates the hypotenuse (Euclidean distance) between two points
     fn hypot(dx: f32, dy: f32) -> f32 {
         (dx * dx + dy * dy).sqrt()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_new_valid_parameters() {
+        assert!(WindMouse::new(10.0, 9.0, 3.0, 2.0, 10.0, 10.0, 100.0).is_ok());
+    }
+
+    #[test]
+    fn test_new_invalid_wait_times() {
+        assert!(matches!(
+            WindMouse::new(10.0, 9.0, 3.0, 10.0, 2.0, 10.0, 100.0),
+            Err(WindMouseError::InvalidWaitTime { .. })
+        ));
+    }
+
+    #[test]
+    fn test_new_negative_parameter() {
+        assert!(matches!(
+            WindMouse::new(-1.0, 9.0, 3.0, 2.0, 10.0, 10.0, 100.0),
+            Err(WindMouseError::NegativeParameter("mouse_speed"))
+        ));
+    }
+
+    #[test]
+    fn test_generate_points() {
+        let wind_mouse = WindMouse::new_default();
+        let start = Coordinate::new(0.0, 0.0);
+        let end = Coordinate::new(100.0, 100.0);
+        let points = wind_mouse.generate_points(start, end);
+        assert!(!points.is_empty());
+        assert_eq!(points.last().unwrap()[0..2], [100, 100]);
     }
 }
